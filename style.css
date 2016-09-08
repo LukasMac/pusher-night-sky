@@ -130,6 +130,7 @@ html, body {
   font-size: 12px;
 }
 .guns {
+  text-align: center;
   position: absolute;
   bottom: 10px;
   left: 25%;
@@ -152,6 +153,10 @@ html, body {
   -webkit-animation-iteration-count: infinite; /* Chrome, Safari, Opera */
   animation-iteration-count: infinite;
   z-index: 1000;
+}
+.guns .info {
+  animation: none;
+  font-size: 13px;
 }
 
 /* Chrome, Safari, Opera */
