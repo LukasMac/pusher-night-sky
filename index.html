@@ -1,0 +1,233 @@
+<html>
+<head>
+  <script
+src="https://da189i1jfloii.cloudfront.net/js/kinvey-html5-sdk-3.0.3.min.js"></script>
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"></script>
+  <script src='jquery.path.js'></script>
+
+  <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
+<link rel="stylesheet" media="all" href="style.css" />
+</head>
+<body>
+
+  <canvas id="sky"></canvas>
+  <div id="stars"></div>
+  <div id="clouds"></div>
+  <img src="moon.png" id="moon">
+  <img src="mountains.png" id="horizont">
+  <img src="pusher.png" id="pusher">
+
+
+  <script>
+var pusher = new Pusher('57cad681aa44cad36271', {cluster:'eu'})
+var button = pusher.subscribe('button-lukasmac')
+
+Kinvey.init({
+    appKey: 'kid_BJMQkXAo',
+    appSecret: 'f984f0f67db6423799fb22410f0ea4b7'
+});
+
+var c = document.getElementById('sky');
+var xMax = c.width = $(window).width();//window.screen.availWidth;
+var yMax = c.height = $(window).height();//window.screen.availHeight;
+
+var id= 0;
+var pusherStars = [
+  //P
+    { x: 1, y: 1, id : id++ },
+    { x: 1, y: 2, id : id++ },
+    { x: 1, y: 3, id : id++ },
+    { x: 1, y: 4, id : id++ },
+    { x: 1, y: 5, id : id++ },
+    { x: 2, y: 1, id : id++ },
+    { x: 3, y: 1, id : id++ },
+    { x: 4, y: 2, id : id++ },
+    { x: 2, y: 3, id : id++ },
+    { x: 3, y: 3, id : id++ },
+  //U
+    { x: 5, y: 1, id : id++ },
+    { x: 5, y: 2, id : id++ },
+    { x: 5, y: 3, id : id++ },
+    { x: 5, y: 4, id : id++ },
+    { x: 5, y: 5, id : id++ },
+    { x: 6, y: 5, id : id++ },
+    { x: 7, y: 5, id : id++ },
+    { x: 8, y: 1, id : id++ },
+    { x: 8, y: 2, id : id++ },
+    { x: 8, y: 3, id : id++ },
+    { x: 8, y: 4, id : id++ },
+    { x: 8, y: 5, id : id++ },
+  //S
+    { x: 10, y: 1, id : id++ },
+    { x: 11, y: 1, id : id++ },
+    { x: 9, y: 2, id : id++ },
+    { x: 10, y: 3, id : id++ },
+    { x: 11, y: 3, id : id++ },
+    { x: 12, y: 4, id : id++ },
+    { x: 10, y: 5, id : id++ },
+    { x: 11, y: 5, id : id++ },
+  //E
+    { x: 13, y: 1, id : id++ },
+    { x: 14, y: 1, id : id++ },
+    { x: 15, y: 1, id : id++ },
+    { x: 13, y: 2, id : id++ },
+    { x: 13, y: 3, id : id++ },
+    { x: 14, y: 3, id : id++ },
+    { x: 15, y: 3, id : id++ },
+    { x: 13, y: 4, id : id++ },
+    { x: 13, y: 5, id : id++ },
+    { x: 14, y: 5, id : id++ },
+    { x: 15, y: 5, id : id++ },
+  //R
+    { x: 16, y: 1, id : id++ },
+    { x: 16, y: 2, id : id++ },
+    { x: 16, y: 3, id : id++ },
+    { x: 16, y: 4, id : id++ },
+    { x: 16, y: 5, id : id++ },
+    { x: 17, y: 1, id : id++ },
+    { x: 18, y: 2, id : id++ },
+    { x: 17, y: 3, id : id++ },
+    { x: 17, y: 4, id : id++ },
+    { x: 18, y: 5, id : id++ },
+  ];
+
+function shoot(star) {
+  var bezier_params = {
+    start: { 
+      x: xMax - xMax / 100 * 15, 
+      y: yMax - yMax / 100 * 20, 
+      angle: 10
+    },  
+    end: { 
+      x: xMax / 100 * star.x,
+      y: yMax / 100 * star.y, 
+      angle: -10, 
+      length: 0.25
+    }
+  }
+
+  var c = document.createElement("div");
+  c.className += "flying-star";
+  $("body").append(c);
+  $(c).animate(
+      {
+        path : new $.path.bezier(bezier_params),
+        height: 2,
+        width: 2,
+      }, 2000, function() {
+        drawStar(star);
+        $(this).hide();
+      });
+}
+
+function generateStar() {
+  var xMax = 100;
+  var yMax = 100;
+
+  var size = Math.floor((Math.random()*2)+1); 
+  var star = {
+    x: Math.floor((Math.random()*xMax)+1),
+    y: Math.floor((Math.random()*(yMax - 20))+1),
+    size: size,
+    opacityOne: Math.floor((Math.random()*9)+1),
+    opacityTwo: Math.floor((Math.random()*9)+1),
+    hue: Math.floor((Math.random()*360)+1),
+    shadowBlur: size>1 ?Math.floor((Math.random()*15)+5) : null,
+  }
+
+  var dataStore = Kinvey.DataStore.collection('stars2');
+  var promise = dataStore.save({
+    field: star,
+  }).then(function onSuccess(entity) {
+    console.log(entity);
+  }).catch(function onError(error) {
+    console.log(error);
+  });
+
+  return star;
+}
+function drawStar(star) {
+  var c = document.createElement("canvas");
+  c.className += "star";
+  c.style["top"] = star.y + "%";
+  c.style["left"] = star.x + "%";
+  c.style.animationDelay = Math.floor(Math.random()*10000) + "ms";
+  document.getElementById('stars').appendChild(c); 
+
+
+  // var c = document.getElementById('sky');
+  var ctx = c.getContext('2d');
+  console.log('drawing', star);
+
+
+  var randomX = star.x;
+  var randomY = star.y;
+  var randomSize = star.size * 5;
+  var randomOpacityOne = star.opacityOne;
+  var randomOpacityTwo = star.opacityTwo;
+  var randomHue = star.hue;
+  if(randomSize>1) {
+    ctx.shadowBlur = star.shadowBlur;
+    ctx.shadowColor = "white";
+  }
+  ctx.fillStyle = "hsla("+randomHue+", 30%, 80%, ."+randomOpacityOne+randomOpacityTwo+")";
+  // ctx.fillRect(10,10, randomSize, randomSize);
+  ctx.fillRect(10,10, randomSize, randomSize);
+}
+function drawPusherStars(stars) {
+  stars.forEach(function(star) {
+    var yscale = 2;
+    var xscale = 1;
+    var c = document.createElement("canvas");
+    c.className += "pusher-star";
+    c.style["top"] = 50 + star.y*yscale + "%";
+    c.style["left"] = 40 + star.x*xscale + "%";
+    c.style.animationDelay = Math.floor(Math.random()*10000) + "ms";
+    document.getElementById('stars').appendChild(c); 
+    var ctx = c.getContext('2d');
+
+    ctx.fillStyle = "hsla(20, 30%, 80%, .94)";
+    ctx.fillRect(10,10, 10, 10);
+  });
+
+}
+
+
+let user  = Kinvey.User.getActiveUser();
+console.log(user);
+if (!user) {
+  var promise = Kinvey.User.login('username', 'password').then(function onSuccess(user) {
+    console.log(user);
+  }).catch(function onError(error) {
+    console.log(error);
+  });
+}
+
+var dataStore = Kinvey.DataStore.collection('stars2');
+var stream = dataStore.find();
+var stars = [];
+stream.subscribe(function onNext(entities) {
+  var star = entities.pop().field;
+  stars = entities;
+  console.log(entities);
+}, function onError(error) {
+  console.log(error);
+}, function onComplete() {
+  console.log('com');
+
+  stars.forEach(function(star) {
+    drawStar(star.field);
+  });
+  drawPusherStars(pusherStars);
+
+  $('#pusher').toggleClass('rotate');
+
+  button.bind('press', function(data) {
+    shoot(generateStar());
+  });
+});
+  </script>
+</body>
+</html>
