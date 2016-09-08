@@ -19,6 +19,9 @@ src="https://da189i1jfloii.cloudfront.net/js/kinvey-html5-sdk-3.0.3.min.js"></sc
   <img src="mountains.png" id="horizont">
   <img src="pusher.png" id="pusher">
 
+  <div class="copy">&copy; Lukas Maciulis</div>
+  <div class="guns">Guns a loaded you can start Pushing stars <a target="_blank" href="http://button.pusher.io/b/lukasmac">here</a>!</div>
+
 
   <script>
 var pusher = new Pusher('57cad681aa44cad36271', {cluster:'eu'})
@@ -223,6 +226,7 @@ stream.subscribe(function onNext(entities) {
   drawPusherStars(pusherStars);
 
   $('#pusher').toggleClass('rotate');
+  setTimeout(function(){ $(".guns").show() }, 1500);
 
   button.bind('press', function(data) {
     shoot(generateStar());
